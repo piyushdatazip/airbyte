@@ -11,6 +11,7 @@ import requests
 from airbyte_cdk.models import SyncMode
 from cached_property import cached_property
 from facebook_business.adobjects.abstractobject import AbstractObject
+from facebook_business.adobjects.ad import Ad
 from facebook_business.adobjects.adaccount import AdAccount as FBAdAccount
 from facebook_business.adobjects.adimage import AdImage
 from facebook_business.adobjects.user import User
@@ -299,3 +300,36 @@ class AdsInsightsDemographicsDMARegion(AdsInsights):
 class AdsInsightsDemographicsGender(AdsInsights):
     breakdowns = ["gender"]
     action_breakdowns = ["action_type"]
+
+
+class AdsLeadsData(FBMarketingIncrementalStream):
+    entity_prefix = "leads"
+
+    def read_records(
+        self,
+        sync_mode: SyncMode,
+        cursor_field: List[str] = None,
+        stream_slice: Mapping[str, Any] = None,
+        stream_state: Mapping[str, Any] = None,
+    ) -> Iterable[Mapping[str, Any]]:
+        """customized read method for ads leads data"""
+        ad_sets = self._api.account.get_ad_sets()
+        for ad in ad_sets:
+            # get lead for ad_id
+            if ad["id"]:
+                try:
+                    records_iter = Ad(ad["id"]).get_leads(fields=[], params={})
+                    loaded_records_iter = (record.api_get(fields=[], pending=self.use_batch) for record in records_iter)
+                    if self.use_batch:
+                        loaded_records_iter = self.execute_in_batch(loaded_records_iter)
+
+                    for record in loaded_records_iter:
+                        if isinstance(record, AbstractObject):
+                            yield record.export_all_data()  # convert FB object to dict
+                        else:
+                            yield record  # execute_in_batch will emmit dicts
+                except Exception as e:
+                    logger.warn(f"failed to get leads for ad_id[{ad['id']}], exception:{e}")
+
+    def list_objects(self, params: Mapping[str, Any]) -> Iterable:
+        return super().list_objects(params)

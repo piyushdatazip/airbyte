@@ -48,6 +48,7 @@ from source_facebook_marketing.streams import (
     AdsInsightsDma,
     AdsInsightsPlatformAndDevice,
     AdsInsightsRegion,
+    AdsLeadsData,
     Campaigns,
     CustomAudiences,
     CustomConversions,
@@ -206,6 +207,14 @@ class SourceFacebookMarketing(AbstractSource):
                 max_batch_size=config.max_batch_size,
             ),
             Activities(
+                api=api,
+                start_date=config.start_date,
+                end_date=config.end_date,
+                include_deleted=config.include_deleted,
+                page_size=config.page_size,
+                max_batch_size=config.max_batch_size,
+            ),
+            AdsLeadsData(
                 api=api,
                 start_date=config.start_date,
                 end_date=config.end_date,
