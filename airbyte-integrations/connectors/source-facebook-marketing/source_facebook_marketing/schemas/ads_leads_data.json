@@ -1,0 +1,29 @@
+{
+  "type": ["object", "string"],
+  "properties": {
+    "created_time": {
+      "type": ["null", "string"]
+    },
+    "id": {
+      "type": ["null", "string"]
+    },
+    "field_data": {
+      "type": ["null", "array"],
+      "items": {
+        "type": ["object", "string"],
+        "required": [],
+        "properties": {
+          "name": {
+            "type": ["null", "string"]
+          },
+          "values": {
+            "type": ["null", "array"],
+            "items": {
+              "type": ["null", "string"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
