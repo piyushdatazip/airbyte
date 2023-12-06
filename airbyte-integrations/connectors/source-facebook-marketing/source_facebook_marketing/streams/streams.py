@@ -304,6 +304,7 @@ class AdsInsightsDemographicsGender(AdsInsights):
 
 class AdsLeadsData(FBMarketingIncrementalStream):
     entity_prefix = "leads"
+    enable_deleted = False
 
     def read_records(
         self,
@@ -313,23 +314,23 @@ class AdsLeadsData(FBMarketingIncrementalStream):
         stream_state: Mapping[str, Any] = None,
     ) -> Iterable[Mapping[str, Any]]:
         """customized read method for ads leads data"""
-        ad_sets = self._api.account.get_ad_sets()
-        for ad in ad_sets:
+        ad_sets_records_iter = self._api.account.get_ads(fields={}, params={})
+        ad_sets_loaded_records_iter = (ad_record.api_get(fields={}, pending=self.use_batch) for ad_record in ad_sets_records_iter)
+        if self.use_batch:
+            ad_sets_loaded_records_iter = self.execute_in_batch(ad_sets_loaded_records_iter)
+        for ad_record in ad_sets_loaded_records_iter:
             # get lead for ad_id
-            if ad["id"]:
-                try:
-                    records_iter = Ad(ad["id"]).get_leads(fields=[], params={})
-                    loaded_records_iter = (record.api_get(fields=[], pending=self.use_batch) for record in records_iter)
-                    if self.use_batch:
-                        loaded_records_iter = self.execute_in_batch(loaded_records_iter)
+            if ad_record["id"]:
+                records_iter = Ad(ad_record["id"]).get_leads(fields=self.fields, params={})
+                loaded_records_iter = (record.api_get(fields=self.fields, pending=self.use_batch) for record in records_iter)
+                if self.use_batch:
+                    loaded_records_iter = self.execute_in_batch(loaded_records_iter)
 
-                    for record in loaded_records_iter:
-                        if isinstance(record, AbstractObject):
-                            yield record.export_all_data()  # convert FB object to dict
-                        else:
-                            yield record  # execute_in_batch will emmit dicts
-                except Exception as e:
-                    logger.warn(f"failed to get leads for ad_id[{ad['id']}], exception:{e}")
+                for record in loaded_records_iter:
+                    if isinstance(record, AbstractObject):
+                        yield record.export_all_data()  # convert FB object to dict
+                    else:
+                        yield record  # execute_in_batch will emmit dicts
 
     def list_objects(self, params: Mapping[str, Any]) -> Iterable:
-        return super().list_objects(params)
+        """Because leads has very different read_records we don't need this method anymore"""
