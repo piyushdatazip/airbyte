@@ -4,7 +4,7 @@
 
 import base64
 import logging
-from typing import Any, Iterable, List, Mapping, Optional, Set
+from typing import Any, Iterable, List, Mapping, MutableMapping, Optional, Set
 
 import pendulum
 import requests
@@ -304,7 +304,10 @@ class AdsInsightsDemographicsGender(AdsInsights):
 
 class AdsLeadsData(FBMarketingIncrementalStream):
     entity_prefix = "leads"
-    enable_deleted = False
+    filter_field = "time_created"
+    cursor_field = "created_time"
+    ad_id = "ad_id"
+    current_ad_id = None
 
     def read_records(
         self,
@@ -320,8 +323,11 @@ class AdsLeadsData(FBMarketingIncrementalStream):
             ad_sets_loaded_records_iter = self.execute_in_batch(ad_sets_loaded_records_iter)
         for ad_record in ad_sets_loaded_records_iter:
             # get lead for ad_id
-            if ad_record["id"]:
-                records_iter = Ad(ad_record["id"]).get_leads(fields=self.fields, params={})
+            if ad_record.get("id"):
+                logger.info(f"running leads sync for ad_id[{ad_record['id']}]")
+                records_iter = Ad(ad_record["id"]).get_leads(
+                    fields=self.fields, params=self.request_params(ad_id=ad_record["id"], stream_state=stream_state)
+                )
                 loaded_records_iter = (record.api_get(fields=self.fields, pending=self.use_batch) for record in records_iter)
                 if self.use_batch:
                     loaded_records_iter = self.execute_in_batch(loaded_records_iter)
@@ -331,6 +337,45 @@ class AdsLeadsData(FBMarketingIncrementalStream):
                         yield record.export_all_data()  # convert FB object to dict
                     else:
                         yield record  # execute_in_batch will emmit dicts
+                logger.info(f"finished leads sync for ad_id[{ad_record['id']}]")
 
     def list_objects(self, params: Mapping[str, Any]) -> Iterable:
         """Because leads has very different read_records we don't need this method anymore"""
+
+    def request_params(self, ad_id: str, stream_state: Mapping[str, Any], **kwargs) -> MutableMapping[str, Any]:
+        """Include state filter"""
+        return self._state_filter(ad_id=ad_id, stream_state=stream_state)
+
+    def _state_filter(self, ad_id: str, stream_state: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Additional filters associated with state if any set"""
+        state_value = stream_state.get(ad_id)
+        filter_value = self._start_date if not state_value else pendulum.parse(state_value)
+        return {
+            "filtering": [
+                {
+                    "field": f"{self.filter_field}",
+                    "operator": "GREATER_THAN",
+                    "value": filter_value.int_timestamp,
+                },
+            ],
+        }
+
+    def get_updated_state(self, current_stream_state: MutableMapping[str, Any], latest_record: Mapping[str, Any]):
+        """Update stream state from latest record
+        { "ads_leads_data": {"120201956515190222": "2023-12-11T15:53:59+0000"} }
+        """
+        # get ad_id of current record
+        record_ads_id = latest_record[self.ad_id]
+        # get cursor field of current record
+        record_cursor_field = latest_record[self.cursor_field]
+        # get cursor field from state
+        state_cursor_field = None
+        if current_stream_state:
+            state_cursor_field = current_stream_state.get(f"{record_ads_id}")
+
+        if not current_stream_state:
+            current_stream_state = {}
+            current_stream_state[f"{record_ads_id}"] = record_cursor_field
+        elif state_cursor_field is None or pendulum.parse(record_cursor_field) > pendulum.parse(state_cursor_field):
+            current_stream_state[f"{record_ads_id}"] = record_cursor_field
+        return current_stream_state
