@@ -307,7 +307,6 @@ class AdsLeadsData(FBMarketingIncrementalStream):
     filter_field = "time_created"
     cursor_field = "created_time"
     ad_id = "ad_id"
-    current_ad_id = None
 
     def read_records(
         self,
