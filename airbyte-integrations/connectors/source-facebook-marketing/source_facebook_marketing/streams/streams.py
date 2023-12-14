@@ -323,7 +323,7 @@ class AdsLeadsData(FBMarketingIncrementalStream):
         for ad_record in ad_sets_loaded_records_iter:
             # get lead for ad_id
             if ad_record.get("id"):
-                logger.info(f"running leads sync for ad_id[{ad_record['id']}]")
+                logger.info(f"Running leads sync for Ad_ID[{ad_record['id']}]")
                 records_iter = Ad(ad_record["id"]).get_leads(
                     fields=self.fields, params=self.request_params(ad_id=ad_record["id"], stream_state=stream_state)
                 )
@@ -336,7 +336,7 @@ class AdsLeadsData(FBMarketingIncrementalStream):
                         yield record.export_all_data()  # convert FB object to dict
                     else:
                         yield record  # execute_in_batch will emmit dicts
-                logger.info(f"finished leads sync for ad_id[{ad_record['id']}]")
+                logger.info(f"Finished leads sync for Ad_ID[{ad_record['id']}]")
 
     def list_objects(self, params: Mapping[str, Any]) -> Iterable:
         """Because leads has very different read_records we don't need this method anymore"""
@@ -360,8 +360,9 @@ class AdsLeadsData(FBMarketingIncrementalStream):
         }
 
     def get_updated_state(self, current_stream_state: MutableMapping[str, Any], latest_record: Mapping[str, Any]):
-        """Update stream state from latest record
-        { "ads_leads_data": {"120201956515190222": "2023-12-11T15:53:59+0000"} }
+        """
+        Update stream state from latest record
+        Example: {"ads_leads_data":{"100001956515190222": "2023-12-11T15:53:59+0000"}}
         """
         # get ad_id of current record
         record_ads_id = latest_record[self.ad_id]
