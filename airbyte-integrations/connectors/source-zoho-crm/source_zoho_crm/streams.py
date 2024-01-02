@@ -19,7 +19,7 @@ from .types import FieldMeta, ModuleMeta, ZohoPickListItem
 
 # 204 and 304 status codes are valid successful responses,
 # but `.json()` will fail because the response body is empty
-EMPTY_BODY_STATUSES = (HTTPStatus.NO_CONTENT, HTTPStatus.NOT_MODIFIED, HTTPStatus.INTERNAL_SERVER_ERROR)
+EMPTY_BODY_STATUSES = (HTTPStatus.NO_CONTENT, HTTPStatus.NOT_MODIFIED, HTTPStatus.INTERNAL_SERVER_ERROR,HTTPStatus.TOO_MANY_REQUESTS)
 
 
 class ZohoCrmStream(HttpStream, ABC):
@@ -44,7 +44,8 @@ class ZohoCrmStream(HttpStream, ABC):
         if response.status_code in EMPTY_BODY_STATUSES or response.json().get("data") is None:
             self.logger.warn(f"response doesn't contain any data, status_code: {response.status_code}, response: {response.json()}")
             yield from []
-        yield from response.json()["data"]
+        else:
+            yield from response.json()["data"]
 
     def path(self, *args, **kwargs) -> str:
         return f"/crm/v2/{self.module.api_name}"
