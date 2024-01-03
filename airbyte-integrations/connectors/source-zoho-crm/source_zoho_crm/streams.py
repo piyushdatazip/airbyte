@@ -41,8 +41,8 @@ class ZohoCrmStream(HttpStream, ABC):
         return next_page_token or {}
 
     def parse_response(self, response: requests.Response, **kwargs) -> Iterable[Mapping]:
-        if response.status_code in EMPTY_BODY_STATUSES or response.json().get("data") is None:
-            self.logger.warn(f"response doesn't contain any data, status_code: {response.status_code}, response: {response.json()}")
+        if response.status_code in EMPTY_BODY_STATUSES or  response.json().get("data") is None:
+            self.logger.warn(f"response doesn't contain any data, status_code: {response.status_code}, response: {response.text}")
             yield from []
         else:
             yield from response.json()["data"]
