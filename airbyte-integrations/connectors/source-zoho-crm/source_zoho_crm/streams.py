@@ -19,7 +19,7 @@ from .types import FieldMeta, ModuleMeta, ZohoPickListItem
 
 # 204 and 304 status codes are valid successful responses,
 # but `.json()` will fail because the response body is empty
-EMPTY_BODY_STATUSES = (HTTPStatus.NO_CONTENT, HTTPStatus.NOT_MODIFIED, HTTPStatus.INTERNAL_SERVER_ERROR)
+EMPTY_BODY_STATUSES = (HTTPStatus.NO_CONTENT, HTTPStatus.NOT_MODIFIED, HTTPStatus.INTERNAL_SERVER_ERROR, HTTPStatus.TOO_MANY_REQUESTS)
 
 
 class ZohoCrmStream(HttpStream, ABC):
@@ -41,8 +41,11 @@ class ZohoCrmStream(HttpStream, ABC):
         return next_page_token or {}
 
     def parse_response(self, response: requests.Response, **kwargs) -> Iterable[Mapping]:
-        data = [] if response.status_code in EMPTY_BODY_STATUSES else response.json()["data"]
-        yield from data
+        if response.status_code in EMPTY_BODY_STATUSES or response.json().get("data") is None:
+            self.logger.warn(f"response doesn't contain any data, status_code: {response.status_code}, response: {response.text}")
+            yield from []
+        else:
+            yield from response.json()["data"]
 
     def path(self, *args, **kwargs) -> str:
         return f"/crm/v2/{self.module.api_name}"
@@ -147,20 +150,27 @@ class ZohoStreamFactory:
     def produce(self) -> List[HttpStream]:
         modules = self._init_modules_meta()
         streams = []
+        thread_count = 0
 
         def populate_module(module):
+            nonlocal thread_count
+            thread_count += 1
+            print("total number of threads : ", thread_count)
             self._populate_module_meta(module)
             self._populate_fields_meta(module)
+            thread_count -= 1
 
         def chunk(max_len, lst):
             for i in range(math.ceil(len(lst) / max_len)):
                 yield lst[i * max_len : (i + 1) * max_len]
 
         max_concurrent_request = self.api.max_concurrent_requests
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent_request) as executor:
             for batch in chunk(max_concurrent_request, modules):
                 executor.map(lambda module: populate_module(module), batch)
 
+        print("total number of threads at end : ", thread_count)
         bases = (IncrementalZohoCrmStream,)
         for module in modules:
             stream_cls_attrs = {"url_base": self.api.api_url, "module": module}

@@ -28,6 +28,7 @@ from .streams import (
     AdsInsightsDma,
     AdsInsightsPlatformAndDevice,
     AdsInsightsRegion,
+    AdsLeadsData,
     Campaigns,
     CustomAudiences,
     CustomConversions,
@@ -66,4 +67,5 @@ __all__ = [
     "Images",
     "Videos",
     "Activities",
+    "AdsLeadsData",
 ]
