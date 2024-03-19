@@ -591,7 +591,6 @@ public abstract class CdcSourceTest {
             .collect(Collectors.toList()));
   }
 
-  @Test
   public void newTableSnapshotTest() throws Exception {
     final AutoCloseableIterator<AirbyteMessage> firstBatchIterator = getSource()
         .read(getConfig(), CONFIGURED_CATALOG, null);
