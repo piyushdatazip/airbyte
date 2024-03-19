@@ -78,7 +78,8 @@ public class MySqlSourceOperations extends AbstractJdbcCompatibleSourceOperation
 
     // https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-type-conversions.html
     switch (columnType) {
-      case BIT, BOOLEAN, TINYINT, TINYINT_UNSIGNED, YEAR -> putShortInt(json, columnName, resultSet, colIndex);
+      case BOOLEAN -> putBoolean(json, columnName, resultSet, colIndex);
+      case BIT, TINYINT, TINYINT_UNSIGNED, YEAR -> putShortInt(json, columnName, resultSet, colIndex);
       case SMALLINT, SMALLINT_UNSIGNED, MEDIUMINT, MEDIUMINT_UNSIGNED -> putInteger(json, columnName, resultSet, colIndex);
       case INT, INT_UNSIGNED -> {
         if (field.isUnsigned()) {
