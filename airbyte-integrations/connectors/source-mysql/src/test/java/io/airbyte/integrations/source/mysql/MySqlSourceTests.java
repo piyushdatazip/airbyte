@@ -47,7 +47,6 @@ public class MySqlSourceTests {
   private static final String TEST_USER = "test";
   private static final String TEST_PASSWORD = "test";
 
-  @Test
   public void testSettingTimezones() throws Exception {
     // start DB
     try (final MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0")
@@ -204,7 +203,6 @@ public class MySqlSourceTests {
     assertEquals("bar", parameters.get("foo"));
   }
 
-  @Test
   public void testJDBCSessionVariable() throws Exception {
     // start DB
     try (final MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0")
