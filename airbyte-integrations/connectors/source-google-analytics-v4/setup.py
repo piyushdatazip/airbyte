@@ -5,9 +5,10 @@
 
 from setuptools import find_packages, setup
 
-MAIN_REQUIREMENTS = ["airbyte-cdk", "PyJWT", "cryptography", "requests"]
+MAIN_REQUIREMENTS = ["airbyte-cdk==0.36", "PyJWT", "cryptography", "requests"]
 
 TEST_REQUIREMENTS = [
+    "airbyte-cdk==0.36",
     "pytest~=6.1",
     "requests-mock",
     "pytest-mock",
