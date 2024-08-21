@@ -1,5 +1,8 @@
 {
   "properties": {
+    "account_id": {
+      "type": ["null", "string"]
+    },
     "id": {
       "type": "string"
     },
@@ -49,11 +52,21 @@
       "items": {
         "type": "object",
         "properties": {
-          "filter": { "type": "string" },
-          "embed_html": { "type": "string" },
-          "width": { "type": "integer" },
-          "height": { "type": "integer" },
-          "picture": { "type": "string" }
+          "filter": {
+            "type": "string"
+          },
+          "embed_html": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "picture": {
+            "type": "string"
+          }
         }
       }
     },
