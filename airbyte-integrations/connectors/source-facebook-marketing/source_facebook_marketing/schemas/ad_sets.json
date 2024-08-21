@@ -70,7 +70,9 @@
     "lifetime_budget": {
       "type": ["null", "number"]
     },
-    "targeting": { "$ref": "targeting.json" },
+    "targeting": {
+      "$ref": "targeting.json"
+    },
     "bid_info": {
       "type": ["null", "object"],
       "properties": {
@@ -107,10 +109,20 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "created_time": { "type": "string", "format": "date-time" },
-          "updated_time": { "type": "string", "format": "date-time" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "created_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_time": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       }
     }

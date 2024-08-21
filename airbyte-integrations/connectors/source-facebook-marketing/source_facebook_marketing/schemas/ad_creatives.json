@@ -60,6 +60,9 @@
             },
             "multi_share_end_card": {
               "type": ["null", "boolean"]
+            },
+            "is_click_to_message": {
+              "type": ["null", "boolean"]
             }
           }
         },
@@ -496,6 +499,12 @@
             }
           ]
         },
+        "reasons_to_shop": {
+          "type": ["null", "boolean"]
+        },
+        "shops_bundle": {
+          "type": ["null", "boolean"]
+        },
         "titles": {
           "type": ["null", "array"],
           "items": {
@@ -597,7 +606,9 @@
     "name": {
       "type": ["null", "string"]
     },
-    "image_crops": { "$ref": "ads_image_crops.json" },
+    "image_crops": {
+      "$ref": "ads_image_crops.json"
+    },
     "instagram_actor_id": {
       "type": ["null", "string"]
     },
@@ -818,7 +829,9 @@
                   "description": {
                     "type": ["null", "string"]
                   },
-                  "image_crops": { "$ref": "ads_image_crops.json" },
+                  "image_crops": {
+                    "$ref": "ads_image_crops.json"
+                  },
                   "name": {
                     "type": ["null", "string"]
                   },
@@ -839,7 +852,9 @@
             "link": {
               "type": ["null", "string"]
             },
-            "image_crops": { "$ref": "ads_image_crops.json" },
+            "image_crops": {
+              "$ref": "ads_image_crops.json"
+            },
             "description": {
               "type": ["null", "string"]
             },
@@ -877,6 +892,9 @@
               }
             },
             "show_multiple_images": {
+              "type": ["null", "boolean"]
+            },
+            "use_flexible_image_aspect_ratio": {
               "type": ["null", "boolean"]
             }
           },
@@ -1093,6 +1111,17 @@
                     },
                     "type": ["null", "object"]
                   },
+                  "place_data": {
+                    "properties": {
+                      "location_source_id": {
+                        "type": ["null", "string"]
+                      },
+                      "type": {
+                        "type": ["null", "string"]
+                      }
+                    },
+                    "type": ["null", "object"]
+                  },
                   "caption": {
                     "type": ["null", "string"]
                   },
@@ -1102,7 +1131,9 @@
                   "description": {
                     "type": ["null", "string"]
                   },
-                  "image_crops": { "$ref": "ads_image_crops.json" },
+                  "image_crops": {
+                    "$ref": "ads_image_crops.json"
+                  },
                   "name": {
                     "type": ["null", "string"]
                   },
@@ -1117,13 +1148,18 @@
               },
               "type": ["null", "array"]
             },
+            "format_option": {
+              "type": ["null", "string"]
+            },
             "multi_share_optimized": {
               "type": ["null", "boolean"]
             },
             "link": {
               "type": ["null", "string"]
             },
-            "image_crops": { "$ref": "ads_image_crops.json" },
+            "image_crops": {
+              "$ref": "ads_image_crops.json"
+            },
             "description": {
               "type": ["null", "string"]
             },
@@ -1253,7 +1289,9 @@
                 "type": "string"
               }
             },
-            "targeting": { "$ref": "targeting.json" },
+            "targeting": {
+              "$ref": "targeting.json"
+            },
             "title": {
               "type": ["null", "string"]
             },
@@ -1272,6 +1310,9 @@
       "type": ["null", "string"]
     },
     "product_set_id": {
+      "type": ["null", "string"]
+    },
+    "source_instagram_media_id": {
       "type": ["null", "string"]
     },
     "status": {

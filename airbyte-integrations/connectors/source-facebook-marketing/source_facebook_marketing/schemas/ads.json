@@ -86,7 +86,9 @@
     "name": {
       "type": ["null", "string"]
     },
-    "targeting": { "$ref": "targeting.json" },
+    "targeting": {
+      "$ref": "targeting.json"
+    },
     "effective_status": {
       "type": ["null", "string"]
     },
