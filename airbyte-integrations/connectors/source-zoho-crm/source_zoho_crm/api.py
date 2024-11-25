@@ -85,7 +85,7 @@ class ZohoAPI:
         return self._json_from_path("/crm/v2.1/settings/fields", key="fields", params={"module": module_name})
 
     def check_connection(self) -> Tuple[bool, Any]:
-        path = "/crm/.1/settings/modules"
+        path = "/crm/v2.1/settings/modules"
         response = requests.get(url=f"{self.api_url}{path}", headers=self.authenticator.get_auth_header())
         try:
             response.raise_for_status()
