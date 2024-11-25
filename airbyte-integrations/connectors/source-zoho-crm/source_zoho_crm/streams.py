@@ -48,7 +48,7 @@ class ZohoCrmStream(HttpStream, ABC):
             yield from response.json()["data"]
 
     def path(self, *args, **kwargs) -> str:
-        return f"/crm/v2/{self.module.api_name}"
+        return f"/crm/v2.1/{self.module.api_name}"
 
     def is_internal_server_error(self, response: requests.Response) -> bool:
         template = "Server Error"
@@ -155,7 +155,6 @@ class ZohoStreamFactory:
         def populate_module(module):
             nonlocal thread_count
             thread_count += 1
-            print("total number of threads : ", thread_count)
             self._populate_module_meta(module)
             self._populate_fields_meta(module)
             thread_count -= 1
@@ -170,7 +169,6 @@ class ZohoStreamFactory:
             for batch in chunk(max_concurrent_request, modules):
                 executor.map(lambda module: populate_module(module), batch)
 
-        print("total number of threads at end : ", thread_count)
         bases = (IncrementalZohoCrmStream,)
         for module in modules:
             stream_cls_attrs = {"url_base": self.api.api_url, "module": module}
